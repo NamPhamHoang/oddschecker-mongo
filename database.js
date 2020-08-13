@@ -37,45 +37,45 @@ module.exports = {
     });
   },
 
-  saveEvent: function (evententry) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        console.log("[Database] Saving");
-        evententry.save(function (err, evententry) {
-          if (err) {
-            console.log(err);
-            return reject();
-          }
-          console.log("[Database] Saved");
-          return resolve();
-        });
-      } catch (error) {
-        console.log(error);
-        return reject();
-      }
-    });
-  },
+  // saveEvent: function (evententry) {
+  //   return new Promise(async (resolve, reject) => {
+  //     try {
+  //       console.log("[Database] Saving");
+  //       evententry.save(function (err, evententry) {
+  //         if (err) {
+  //           console.log(err);
+  //           return reject();
+  //         }
+  //         console.log("[Database] Saved");
+  //         return resolve();
+  //       });
+  //     } catch (error) {
+  //       console.log(error);
+  //       return reject();
+  //     }
+  //   });
+  // },
 
-  findEvent: function (event) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        console.log("[Database] Finding");
+  // findEvent: function (event) {
+  //   return new Promise(async (resolve, reject) => {
+  //     try {
+  //       console.log("[Database] Finding");
 
-        event.find({}, function (err, data) {
-          if (err) {
-            console.log(err);
-            return reject();
-          }
-          console.log("[Database] Found");
-          console.log(data);
-          return resolve();
-        });
-      } catch (error) {
-        console.log(error);
-        return reject();
-      }
-    });
-  },
+  //       event.find({}, function (err, data) {
+  //         if (err) {
+  //           console.log(err);
+  //           return reject();
+  //         }
+  //         console.log("[Database] Found");
+  //         console.log(data);
+  //         return resolve();
+  //       });
+  //     } catch (error) {
+  //       console.log(error);
+  //       return reject();
+  //     }
+  //   });
+  // },
 
   //update db
   updateEvent: async function (evententry) {
@@ -104,7 +104,6 @@ module.exports = {
             },
             { new: true, useFindAndModify: false, upsert: true }
           )
-          .catch((err) => console.log(err));
       } else {
         await event.create(evententry);
       }
