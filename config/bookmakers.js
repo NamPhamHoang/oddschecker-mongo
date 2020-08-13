@@ -1,0 +1,38 @@
+module.exports = {
+  // List of valid bookmaker names (as spelt on oddsmatcher) and their oc name.
+  bookmakers: {
+    'Bet365': 'B3',
+    'Skybet': 'SK',
+    'Betstars': 'PS',
+    'William Hill': 'WH',
+    'Betfred': 'FR',
+    'SportingBet': 'SO',
+    'BetVictor': 'VC',
+    'Paddy Power': 'PP',
+    'UniBet': 'UN',
+    'Totesport': 'BX',
+    'Ladbrokes': 'LD',
+    'Coral': 'CE',
+    'BoyleSports': 'BY',
+    'Winner': 'WN',
+    'Betfair Sportsbook': 'FB',
+    'BetWay': 'WA',
+    'BetBright': 'BB',
+    'Bwin': 'BW',
+    '32RedBet': 'RD',
+    '10Bet': 'OE',
+    'MarathonBet': 'MR',
+    '188Bet': 'EB',
+    '888Sport': 'EE',
+    'BlackType': 'BL',
+    'Stan James': 'SJ',
+    'SunBets': 'P3',
+    'VBet': 'VT',
+    'GentingBet' : 'GN',
+    'SportPesa' : 'PE',
+    'SpreadEx' : 'SX',
+    'SportNation' : 'SA',
+    'BetfairExchange': 'BF',
+    'Smarkets': 'MK'
+  }
+};
