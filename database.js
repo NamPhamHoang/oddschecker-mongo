@@ -115,8 +115,6 @@ module.exports = {
 
   
   updateEvent: async function (evententry) {
-    console.log(evententry.markets)
-
     try {
       const {
         eventName,
@@ -130,6 +128,22 @@ module.exports = {
       
       const data = await event.findOne({ eventName, eventStartTime })
       if(data !== null) {
+        if(data.markets.length <= 0) {
+          console.log("Cannot find this markets. Create new markets")
+          await event
+          .findOneAndUpdate(
+            { eventName, eventStartTime },
+            {
+              competition,
+              markets,
+              sport,
+              country,
+              __v,
+            },
+            { new: true, useFindAndModify: false, upsert: true }
+          )
+          return
+        }
         markets.forEach(api => {
           //markets
           data.markets.forEach(async data => {
@@ -175,11 +189,8 @@ module.exports = {
                 })
               }
             else {
-              //them market vao array
-              // console.log("wrong", element)
-              // data.markets.push(market)
+              markets.push(data)
             }
-
           }) 
         })
       await event
@@ -197,7 +208,7 @@ module.exports = {
       }
      else {
        //tao them 1 data moi
-        console.log("create")
+        console.log("create new even")
         await event.create(evententry);
      }
     } catch (err) {
