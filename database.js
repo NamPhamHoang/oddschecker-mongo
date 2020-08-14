@@ -88,27 +88,94 @@ module.exports = {
         sport,
         country,
         __v,
-      } = evententry;
-      const data = await event.findOne({ eventName, eventStartTime });
-      if (data !== null) {
-        console.log("update", evententry);
-        await event
-          .findOneAndUpdate(
-            { eventName, eventStartTime },
-            {
-              competition,
-              markets,
-              sport,
-              country,
-              __v,
-            },
-            { new: true, useFindAndModify: false, upsert: true }
-          )
-      } else {
-        await event.create(evententry);
+      } = evententry
+      
+      const data = await event.findOne({ eventName, eventStartTime })
+      if(data !== null) {
+        markets.forEach(api => {
+          //markets
+          data.markets.forEach(data => {
+            var dataCompare = {
+              marketName: data.marketName,
+              marketStartTime: data.marketStartTime
+            }
+            var apiCompare = {
+              marketName: api.marketName,
+              marketStartTime: api.marketStartTime
+            }
+            if(_.isEqual(dataCompare, apiCompare)) {
+              //runners
+              const aRunners = api.runners;
+              const dRunners = data.runners;
+            
+              for(var i = 0; i< aRunners.length;i++) {
+                for(var j = 0;j< dRunners.length;j++) {
+                  if(aRunners[i].runnerName = dRunners[j].runnerName) {
+                    dRunners.slice(j,1)
+                    const apiOdd = aRunners[i].odds
+                    const dataOdd = dRunners[j].odds
+                  
+                    //odds
+                    for(var x = 0;x<apiOdd.length;x++) {
+                      for(var y = 0;y<dataOdd.length;y++) {
+                        if(apiOdd[x].bookmaker === dataOdd[y].bookmaker) {
+                          dataOdd.slice(y,1)
+                        }
+                      }
+                    }
+                    //update odds arrays
+                    if(dataOdd.length > 0){
+                      dataOdd.forEach(ele => {
+                        apiOdd.push(ele)
+                      })
+                    }
+                  }
+                }
+              }
+
+              //update runner arrays
+              if(aRunners.length > 0)
+                aRunners.forEach(data => {
+                  aRunners.push(data)
+                })
+              }
+            else {
+              //them market vao array
+              // console.log("wrong", element)
+              // data.markets.push(market)
+            }
+          }) 
+        })
+      await event
+        .findOneAndUpdate(
+          { eventName, eventStartTime },
+          {
+            competition,
+            markets,
+            sport,
+            country,
+            __v,
+          },
+          { new: true, useFindAndModify: false, upsert: true }
+        )
       }
+     else {
+       //tao them 1 data moi
+        console.log("create")
+        await event.create(evententry);
+     }
     } catch (err) {
       console.log(err);
     }
   },
+
+  checkExist: async function (array, param) {
+    array.forEach(element => {
+      if(element === param)
+        return true
+    });
+    return false
+  },
 };
+
+

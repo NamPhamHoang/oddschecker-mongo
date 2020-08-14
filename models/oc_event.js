@@ -79,5 +79,24 @@ const eventSchema = new Schema({
     },
   ],
 });
+eventSchema.statics = {
+  findStart(eventName,eventStartTime){
+    return this.findOne({eventName:eventName,eventStartTime:eventStartTime}).exec();
+  },
+  updateOdds(obj){
+    return this.updateOne({
+      backPriceDec:obj.backPriceDec, 
+      backPriceFrac:obj.backPriceFrac,
+      places:obj.places,
+      placeTerms:obj.placeTerms,
+      timeStamp:obj.timeStamp
+    })
+  },
+  updateRunner(obj) {
+    return this.updateOne({
+      isNonRunner:obj.isNonRunner, 
+    })
+  },
+}
 
 module.exports = mongoose.model("event", eventSchema);

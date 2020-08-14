@@ -5,7 +5,7 @@ const event = require("./models/oc_event");
 const database = require("./database");
 
 
-oc_getdata('https://www.oddschecker.com/horse-racing/salisbury/12:45/winner');
+oc_getdata('https://www.oddschecker.com/horse-racing/pontefract/12:15/winner');
 
 async function oc_getdata(url) {
     const defaultViewport = {
