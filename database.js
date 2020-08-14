@@ -4,6 +4,40 @@ const event = require("./models/oc_event");
 const _ = require("lodash");
 
 mongoose.set("useFindAndModify", false);
+const test = {
+  sport: "horse racing",
+  country: "NA",
+  competition: "Pontefract",
+  eventName: "Pontefract 12:15",
+  eventStartTime: "2020-08-14T05:15:00.000+00:00",
+  markets: [
+    {
+      marketId: 3498218202,
+      marketName: 'Winner',
+      eventName: 'Pontefract 12:15',
+      marketStartTime: "2020-08-14T05:15:00.000Z",
+      runners: [
+        {
+        selectionId: 232132311,
+          runnerName: "abc",
+          isNonRunner: true,
+          odds: [{
+            bookmaker: "Bet365",
+            backPriceDec: 5,
+            backPriceFrac : "3",
+            places: 3,
+            placeTerm: "1/5",
+            timeStamp: "2020-08-14T15:11:54.389+00:00"
+          }]
+        }
+      ]
+    },
+  ],
+}
+
+
+
+
 
 module.exports = {
   connect: function () {
@@ -78,7 +112,11 @@ module.exports = {
   // },
 
   //update db
+
+  
   updateEvent: async function (evententry) {
+    console.log(evententry.markets)
+
     try {
       const {
         eventName,
@@ -94,7 +132,7 @@ module.exports = {
       if(data !== null) {
         markets.forEach(api => {
           //markets
-          data.markets.forEach(data => {
+          data.markets.forEach(async data => {
             var dataCompare = {
               marketName: data.marketName,
               marketStartTime: data.marketStartTime
@@ -107,36 +145,33 @@ module.exports = {
               //runners
               const aRunners = api.runners;
               const dRunners = data.runners;
-            
               for(var i = 0; i< aRunners.length;i++) {
                 for(var j = 0;j< dRunners.length;j++) {
-                  if(aRunners[i].runnerName = dRunners[j].runnerName) {
-                    dRunners.slice(j,1)
+                  if(aRunners[i].runnerName === dRunners[j].runnerName) {
                     const apiOdd = aRunners[i].odds
                     const dataOdd = dRunners[j].odds
-                  
                     //odds
                     for(var x = 0;x<apiOdd.length;x++) {
                       for(var y = 0;y<dataOdd.length;y++) {
                         if(apiOdd[x].bookmaker === dataOdd[y].bookmaker) {
-                          dataOdd.slice(y,1)
+                          dataOdd.splice(y,1)
                         }
                       }
                     }
-                    //update odds arrays
+                    //update odds arrays 
                     if(dataOdd.length > 0){
                       dataOdd.forEach(ele => {
                         apiOdd.push(ele)
                       })
                     }
+                    dRunners.splice(j,1)
                   }
                 }
               }
-
-              //update runner arrays
-              if(aRunners.length > 0)
-                aRunners.forEach(data => {
-                  aRunners.push(data)
+              // update runner arrays
+              if(dRunners.length > 0)
+                dRunners.forEach(data => {
+                    aRunners.push(data)
                 })
               }
             else {
@@ -144,6 +179,7 @@ module.exports = {
               // console.log("wrong", element)
               // data.markets.push(market)
             }
+
           }) 
         })
       await event
@@ -167,14 +203,6 @@ module.exports = {
     } catch (err) {
       console.log(err);
     }
-  },
-
-  checkExist: async function (array, param) {
-    array.forEach(element => {
-      if(element === param)
-        return true
-    });
-    return false
   },
 };
 
