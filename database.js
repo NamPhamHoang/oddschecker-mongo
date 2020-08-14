@@ -126,7 +126,10 @@ module.exports = {
         __v,
       } = evententry
       
+      //check have event in db
       const data = await event.findOne({ eventName, eventStartTime })
+
+      //if it not have event in db
       if(data !== null) {
         if(data.markets.length <= 0) {
           console.log("Cannot find this markets. Create new markets")
@@ -144,6 +147,8 @@ module.exports = {
           )
           return
         }
+
+        //handle duplicated data
         markets.forEach(api => {
           //markets
           data.markets.forEach(async data => {
@@ -151,20 +156,22 @@ module.exports = {
               marketName: data.marketName,
               marketStartTime: data.marketStartTime
             }
+
             var apiCompare = {
               marketName: api.marketName,
               marketStartTime: api.marketStartTime
             }
+            //check markets match or not
             if(_.isEqual(dataCompare, apiCompare)) {
-              //runners
               const aRunners = api.runners;
               const dRunners = data.runners;
+              //check runner match or not
               for(var i = 0; i< aRunners.length;i++) {
                 for(var j = 0;j< dRunners.length;j++) {
                   if(aRunners[i].runnerName === dRunners[j].runnerName) {
                     const apiOdd = aRunners[i].odds
                     const dataOdd = dRunners[j].odds
-                    //odds
+                    //check odds match or not
                     for(var x = 0;x<apiOdd.length;x++) {
                       for(var y = 0;y<dataOdd.length;y++) {
                         if(apiOdd[x].bookmaker === dataOdd[y].bookmaker) {
@@ -188,11 +195,14 @@ module.exports = {
                     aRunners.push(data)
                 })
               }
+              //update markets
             else {
               markets.push(data)
             }
           }) 
         })
+
+        // update event event
       await event
         .findOneAndUpdate(
           { eventName, eventStartTime },
@@ -207,7 +217,7 @@ module.exports = {
         )
       }
      else {
-       //tao them 1 data moi
+       //creat new event
         console.log("create new even")
         await event.create(evententry);
      }
