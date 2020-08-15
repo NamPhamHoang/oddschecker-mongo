@@ -5,7 +5,7 @@ const event = require("./models/oc_event");
 const database = require("./database");
 
 
-oc_getdata('https://www.oddschecker.com/horse-racing/pontefract/12:15/winner');
+oc_getdata('https://www.oddschecker.com/horse-racing/newbury/13:50/winner');
 
 async function oc_getdata(url) {
     const defaultViewport = {
@@ -118,7 +118,7 @@ async function oc_getdata(url) {
     const db = await database.connect();
 
     var parsedMarket = parseMarket(sanatizedMarkets[0]);
-    await database.updateEvent(new event(parsedMarket));
+    await database.CheckAndUpdateEvent(new event(parsedMarket));
     // sanatizedMarkets.forEach(sanatizedMarket => {
     //   sanatizedMarket = parseMarket(sanatizedMarket);
     //   await saveEvent(new event(sanatizedMarket));

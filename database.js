@@ -4,40 +4,6 @@ const event = require("./models/oc_event");
 const _ = require("lodash");
 
 mongoose.set("useFindAndModify", false);
-const test = {
-  sport: "horse racing",
-  country: "NA",
-  competition: "Pontefract",
-  eventName: "Pontefract 12:15",
-  eventStartTime: "2020-08-14T05:15:00.000+00:00",
-  markets: [
-    {
-      marketId: 3498218202,
-      marketName: 'Winner',
-      eventName: 'Pontefract 12:15',
-      marketStartTime: "2020-08-14T05:15:00.000Z",
-      runners: [
-        {
-        selectionId: 232132311,
-          runnerName: "abc",
-          isNonRunner: true,
-          odds: [{
-            bookmaker: "Bet365",
-            backPriceDec: 5,
-            backPriceFrac : "3",
-            places: 3,
-            placeTerm: "1/5",
-            timeStamp: "2020-08-14T15:11:54.389+00:00"
-          }]
-        }
-      ]
-    },
-  ],
-}
-
-
-
-
 
 module.exports = {
   connect: function () {
@@ -112,9 +78,8 @@ module.exports = {
   // },
 
   //update db
-
   
-  updateEvent: async function (evententry) {
+  CheckAndUpdateEvent: async function (evententry) {
     try {
       const {
         eventName,
@@ -127,11 +92,11 @@ module.exports = {
       } = evententry
       
       //check have event in db
-      const data = await event.findOne({ eventName, eventStartTime })
+      const dataEvent = await event.findOne({ eventName, eventStartTime })
 
       //if it not have event in db
-      if(data !== null) {
-        if(data.markets.length <= 0) {
+      if(dataEvent !== null) {
+        if(dataEvent.markets.length <= 0) {
           console.log("Cannot find this markets. Create new markets")
           await event
           .findOneAndUpdate(
@@ -145,13 +110,13 @@ module.exports = {
             },
             { new: true, useFindAndModify: false, upsert: true }
           )
-          return
+          return evententry
         }
 
         //handle duplicated data
-        markets.forEach(api => {
+        markets.forEach((api,apiIndex) => {
           //markets
-          data.markets.forEach(async data => {
+          dataEvent.markets.forEach((data,dataIndex) => {
             var dataCompare = {
               marketName: data.marketName,
               marketStartTime: data.marketStartTime
@@ -166,41 +131,42 @@ module.exports = {
               const aRunners = api.runners;
               const dRunners = data.runners;
               //check runner match or not
-              for(var i = 0; i< aRunners.length;i++) {
-                for(var j = 0;j< dRunners.length;j++) {
-                  if(aRunners[i].runnerName === dRunners[j].runnerName) {
-                    const apiOdd = aRunners[i].odds
-                    const dataOdd = dRunners[j].odds
-                    //check odds match or not
-                    for(var x = 0;x<apiOdd.length;x++) {
-                      for(var y = 0;y<dataOdd.length;y++) {
-                        if(apiOdd[x].bookmaker === dataOdd[y].bookmaker) {
-                          dataOdd.splice(y,1)
+              aRunners.forEach((aRunner) => {
+                dRunners.forEach((dRunner, dRIndex) => {
+                  if(aRunner.runnerName === dRunner.runnerName) {
+                    const apiOdds = aRunner.odds
+                    const dataOdds = dRunner.odds
+                    apiOdds.forEach((apiOdd) =>{
+                      dataOdds.forEach((dataOdd, dOIndex) => {
+                        if(apiOdd.bookmaker === dataOdd.bookmaker) {
+                          dataOdds.splice(dOIndex,1)
                         }
-                      }
-                    }
-                    //update odds arrays 
-                    if(dataOdd.length > 0){
-                      dataOdd.forEach(ele => {
-                        apiOdd.push(ele)
+                      })
+                    })
+                    if(dataOdds.length > 0){
+                      dataOdds.forEach(ele => {
+                        apiOdds.push(ele)
                       })
                     }
-                    dRunners.splice(j,1)
+                    dRunners.splice(dRIndex,1)
                   }
-                }
-              }
-              // update runner arrays
-              if(dRunners.length > 0)
+                })
+              })
+              if(dRunners.length > 0) {
                 dRunners.forEach(data => {
                     aRunners.push(data)
                 })
               }
-              //update markets
-            else {
-              markets.push(data)
+              dataEvent.markets.splice(dataIndex,1)
             }
           }) 
         })
+      
+        if(dataEvent.markets.length > 0) {
+          dataEvent.markets.forEach(data => {
+            markets.push(data)
+          })
+        }
 
         // update event event
       await event
@@ -215,11 +181,13 @@ module.exports = {
           },
           { new: true, useFindAndModify: false, upsert: true }
         )
+        return evententry
       }
      else {
        //creat new event
         console.log("create new even")
         await event.create(evententry);
+        return evententry
      }
     } catch (err) {
       console.log(err);
